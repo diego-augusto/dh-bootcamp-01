@@ -1,1 +1,44 @@
-[]
+[
+  {
+    "id": 1,
+    "name": "XBOX Series X",
+    "type": "Eletrodoméstico",
+    "count": 1,
+    "price": 4499.99
+  },
+  {
+    "id": 2,
+    "name": "PlayStation 5",
+    "type": "Eletrodoméstico",
+    "count": 1,
+    "price": 4499.99
+  },
+  {
+    "id": 3,
+    "name": "PlayStation 5 Pro",
+    "type": "Eletrodoméstico",
+    "count": 1,
+    "price": 4999.99
+  },
+  {
+    "id": 4,
+    "name": "TV LG OLED 55",
+    "type": "Eletrodoméstico",
+    "count": 1,
+    "price": 6999.99
+  },
+  {
+    "id": 5,
+    "name": "TV LG OLED 65",
+    "type": "Eletrodoméstico",
+    "count": 1,
+    "price": 7999.99
+  },
+  {
+    "id": 6,
+    "name": "TV Samsung QLED 75",
+    "type": "Eletrodoméstico",
+    "count": 1,
+    "price": 9999.99
+  }
+]

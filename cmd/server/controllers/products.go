@@ -2,7 +2,9 @@ package controllers
 
 import (
 	"arquitetura-go/internal/products"
+	"arquitetura-go/pkg/web"
 	"fmt"
+	"net/http"
 	"os"
 	"strconv"
 
@@ -36,7 +38,8 @@ func (c *ProductController) GetAll() gin.HandlerFunc {
 			})
 			return
 		}
-		ctx.JSON(200, p)
+
+		ctx.JSON(http.StatusOK, web.NewResponse(http.StatusOK, p))
 	}
 }
 
@@ -47,19 +50,57 @@ func (c *ProductController) Store() gin.HandlerFunc {
 			ctx.JSON(401, gin.H{"error": "token inválido"})
 			return
 		}
+
 		var req request
-		if err := ctx.Bind(&req); err != nil {
+		if err := ctx.ShouldBindJSON(&req); err != nil {
 			ctx.JSON(404, gin.H{
 				"error": err.Error(),
 			})
 			return
 		}
-		p, err := c.service.Store(req.Name, req.Type, req.Count, req.Price)
-		if err != nil {
-			ctx.JSON(404, gin.H{"error": err.Error()})
+
+		if req.Name == "" {
+			ctx.JSON(
+				http.StatusBadRequest,
+				web.DecodeError(http.StatusBadRequest, "O nome é obrigatório"),
+			)
 			return
 		}
-		ctx.JSON(200, p)
+
+		if req.Type == "" {
+			ctx.JSON(
+				http.StatusBadRequest,
+				web.DecodeError(http.StatusBadRequest, "O tipo é obrigatório"),
+			)
+			return
+		}
+
+		if req.Count == 0 {
+			ctx.JSON(
+				http.StatusBadRequest,
+				web.DecodeError(http.StatusBadRequest, "A quantidade é necessária"),
+			)
+			return
+		}
+
+		if req.Price == 0 {
+			ctx.JSON(
+				http.StatusBadRequest,
+				web.DecodeError(http.StatusBadRequest, "O preço é obrigatório"),
+			)
+			return
+		}
+
+		p, err := c.service.Store(req.Name, req.Type, req.Count, req.Price)
+		if err != nil {
+			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx.JSON(
+			http.StatusOK,
+			web.NewResponse(http.StatusOK, p),
+		)
 	}
 }
 

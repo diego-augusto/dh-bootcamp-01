@@ -32,7 +32,6 @@ func (s service) GetAll() ([]Product, error) {
 }
 
 func (s service) Store(name, typee string, count int, price float64) (Product, error) {
-
 	lastID, err := s.repository.LastID()
 
 	if err != nil {
