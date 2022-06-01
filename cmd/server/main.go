@@ -4,13 +4,23 @@ import (
 	"arquitetura-go/cmd/server/controllers"
 	"arquitetura-go/internal/email"
 	"arquitetura-go/internal/products"
+	"arquitetura-go/pkg/store"
+	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	err := godotenv.Load("../../.env")
+	if err != nil {
+		log.Fatal("failed to load .env")
+	}
+
+	db := store.New(store.FileType, "../../products.json")
+
 	//1. repositório
-	repo := products.NewRepository()
+	repo := products.NewRepository(db)
 
 	//2. serviço (regra de negócio)
 	//emailSES := email.NewSES()

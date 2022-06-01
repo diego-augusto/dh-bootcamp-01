@@ -3,6 +3,7 @@ package controllers
 import (
 	"arquitetura-go/internal/products"
 	"fmt"
+	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -21,7 +22,7 @@ func NewProduct(p products.Service) *ProductController {
 func (c *ProductController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.Request.Header.Get("token")
-		if token != "123456" {
+		if token != os.Getenv("TOKEN") {
 			ctx.JSON(401, gin.H{
 				"error": "token inválido",
 			})
@@ -42,7 +43,7 @@ func (c *ProductController) GetAll() gin.HandlerFunc {
 func (c *ProductController) Store() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.Request.Header.Get("token")
-		if token != "123456" {
+		if token != os.Getenv("TOKEN") {
 			ctx.JSON(401, gin.H{"error": "token inválido"})
 			return
 		}
@@ -65,7 +66,7 @@ func (c *ProductController) Store() gin.HandlerFunc {
 func (c *ProductController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.GetHeader("token")
-		if token != "123456" {
+		if token != os.Getenv("TOKEN") {
 			ctx.JSON(401, gin.H{"error": "token inválido"})
 			return
 		}
@@ -111,7 +112,7 @@ func (c *ProductController) Update() gin.HandlerFunc {
 func (c *ProductController) UpdateName() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.GetHeader("token")
-		if token != "123456" {
+		if token != os.Getenv("TOKEN") {
 			ctx.JSON(401, gin.H{"error": "token inválido"})
 			return
 		}
@@ -144,7 +145,7 @@ func (c *ProductController) UpdateName() gin.HandlerFunc {
 func (c *ProductController) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.GetHeader("token")
-		if token != "123456" {
+		if token != os.Getenv("TOKEN") {
 			ctx.JSON(401, gin.H{"error": "token inválido"})
 			return
 		}

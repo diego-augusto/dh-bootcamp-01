@@ -1,12 +1,15 @@
 package products
 
-import "fmt"
+import (
+	"arquitetura-go/pkg/store"
+	"fmt"
+)
 
 //Repositorio
 
 var ps []Product = []Product{}
 
-var lastID int
+// var lastID int
 
 type Repository interface {
 	GetAll() ([]Product, error)
@@ -17,20 +20,44 @@ type Repository interface {
 	Delete(id int) error
 }
 
-type repository struct{}
+// repositório em memória
+// type repository struct{}
 
-func (repository) GetAll() ([]Product, error) {
+type repository struct {
+	db store.Store
+}
+
+func (r *repository) GetAll() ([]Product, error) {
+	var ps []Product
+	if err := r.db.Read(&ps); err != nil {
+		return []Product{}, nil
+	}
 	return ps, nil
 }
 
-func (repository) LastID() (int, error) {
-	return lastID, nil
+func (r *repository) LastID() (int, error) {
+	var ps []Product
+	if err := r.db.Read(&ps); err != nil {
+		return 0, err
+	}
+
+	if len(ps) == 0 {
+		return 0, nil
+	}
+
+	return ps[len(ps)-1].ID, nil
 }
 
-func (repository) Store(id int, name, typee string, count int, price float64) (Product, error) {
-	p := Product{id, name, typee, count, price}
+func (r *repository) Store(id int, name, productType string, count int, price float64) (Product, error) {
+	var ps []Product
+	if err := r.db.Read(&ps); err != nil {
+		return Product{}, err
+	}
+	p := Product{id, name, productType, count, price}
 	ps = append(ps, p)
-	lastID = p.ID
+	if err := r.db.Write(ps); err != nil {
+		return Product{}, err
+	}
 	return p, nil
 }
 
@@ -79,23 +106,18 @@ func (repository) Delete(id int) error {
 		return fmt.Errorf("produto %d nao encontrado", id)
 	}
 
-	//Exemplo
-	// 0 1 2 3 4 5
-	//[1,2,3,4,5,6]
-	//index = 2
-
-	//ps[0:5] = ps[0:5] = [1,2,3,4,5]
-	//ps[6:] = ps[3:] = [4,5,6]
-
-	//[4,5,6]... = 4, 5 ,6
-	//ps = append([1,2], [4,5,6]...)
-
-	//[1,2,4,5,6]
-
 	ps = append(ps[:index], ps[index+1:]...)
 	return nil
 }
 
-func NewRepository() Repository {
-	return &repository{}
+// Função de instanciar a interface
+// Repository em memória.
+// func NewRepository() Repository {
+// 	return &repository{}
+// }
+
+func NewRepository(db store.Store) Repository {
+	return &repository{
+		db: db,
+	}
 }
