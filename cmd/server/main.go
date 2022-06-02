@@ -2,20 +2,53 @@ package main
 
 import (
 	"arquitetura-go/cmd/server/controllers"
+	"arquitetura-go/docs"
 	"arquitetura-go/internal/email"
 	"arquitetura-go/internal/products"
 	"arquitetura-go/pkg/store"
+	"arquitetura-go/pkg/web"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
 	swaggerFiles "github.com/swaggo/files"
-	"github.com/swaggo/swag/example/basic/docs"
 
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
+
+func TokenAuthMiddleware() gin.HandlerFunc {
+	requiredToken := os.Getenv("TOKEN")
+
+	// We want to make sure the token is set, bail if not
+	if requiredToken == "" {
+		log.Fatal("Please set token environment variable")
+	}
+
+	return func(c *gin.Context) {
+		token := c.GetHeader("token")
+
+		if token == "" {
+			c.AbortWithStatusJSON(
+				http.StatusUnauthorized,
+				web.DecodeError(http.StatusUnauthorized, "Token vazio"),
+			)
+			return
+		}
+
+		if token != requiredToken {
+			c.AbortWithStatusJSON(
+				http.StatusUnauthorized,
+				web.DecodeError(http.StatusUnauthorized, "Token inválido"),
+			)
+			return
+		}
+
+		c.Next()
+	}
+}
 
 // @title MELI Bootcamp API
 // @version 1.0
@@ -52,10 +85,15 @@ func main() {
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	pr := r.Group("/products")
-	pr.POST("/", p.Store())
-	pr.GET("/", p.GetAll())
-	pr.PUT("/:id", p.Update())
-	pr.PATCH("/:id", p.UpdateName())
-	pr.DELETE("/:id", p.Delete())
+	{
+		pr.Use(TokenAuthMiddleware())
+
+		pr.POST("/", p.Store())
+		pr.GET("/", p.GetAll())
+		pr.PUT("/:id", p.Update())
+		pr.PATCH("/:id", p.UpdateName())
+		pr.DELETE("/:id", p.Delete())
+	}
+
 	r.Run()
 }

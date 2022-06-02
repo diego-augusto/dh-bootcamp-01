@@ -22,30 +22,23 @@
   },
   {
     "id": 4,
-    "name": "TV LG OLED 55",
+    "name": "iPhone 12 Pro",
     "type": "Eletrodoméstico",
     "count": 1,
-    "price": 6999.99
+    "price": 4000
   },
   {
     "id": 5,
-    "name": "TV LG OLED 65",
+    "name": "iPhone 13 Pro",
     "type": "Eletrodoméstico",
     "count": 1,
-    "price": 7999.99
+    "price": 5000
   },
   {
     "id": 6,
-    "name": "TV Samsung QLED 75",
+    "name": "iPhone 13 Pro Max",
     "type": "Eletrodoméstico",
     "count": 1,
-    "price": 9999.99
-  },
-  {
-    "id": 7,
-    "name": "Microfone condensador Hyper X",
-    "type": "Eletrodoméstico",
-    "count": 1,
-    "price": 800
+    "price": 7000
   }
 ]

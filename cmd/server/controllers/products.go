@@ -61,15 +61,11 @@ func (c *ProductController) GetAll() gin.HandlerFunc {
 // @Param token header string true "token"
 // @Param product body request true "Product to store"
 // @Success 200 {object} web.Response
+// @Failure 400 {object} web.Response
+// @Failure 401 {object} web.Response
 // @Router /products [post]
 func (c *ProductController) Store() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		token := ctx.Request.Header.Get("token")
-		if token != os.Getenv("TOKEN") {
-			ctx.JSON(401, gin.H{"error": "token inválido"})
-			return
-		}
-
 		var req request
 		if err := ctx.ShouldBindJSON(&req); err != nil {
 			ctx.AbortWithStatusJSON(http.StatusBadRequest,
@@ -126,12 +122,6 @@ func (c *ProductController) Store() gin.HandlerFunc {
 
 func (c *ProductController) Update() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		token := ctx.GetHeader("token")
-		if token != os.Getenv("TOKEN") {
-			ctx.JSON(401, gin.H{"error": "token inválido"})
-			return
-		}
-
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(400, gin.H{"error": "invalid ID"})
@@ -172,12 +162,6 @@ func (c *ProductController) Update() gin.HandlerFunc {
 
 func (c *ProductController) UpdateName() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		token := ctx.GetHeader("token")
-		if token != os.Getenv("TOKEN") {
-			ctx.JSON(401, gin.H{"error": "token inválido"})
-			return
-		}
-
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(400, gin.H{"error": "invalid ID"})
@@ -205,12 +189,6 @@ func (c *ProductController) UpdateName() gin.HandlerFunc {
 
 func (c *ProductController) Delete() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		token := ctx.GetHeader("token")
-		if token != os.Getenv("TOKEN") {
-			ctx.JSON(401, gin.H{"error": "token inválido"})
-			return
-		}
-
 		id, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
 		if err != nil {
 			ctx.JSON(400, gin.H{"error": "invalid ID"})
