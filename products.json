@@ -40,5 +40,12 @@
     "type": "Eletrodoméstico",
     "count": 1,
     "price": 9999.99
+  },
+  {
+    "id": 7,
+    "name": "Microfone condensador Hyper X",
+    "type": "Eletrodoméstico",
+    "count": 1,
+    "price": 800
   }
 ]

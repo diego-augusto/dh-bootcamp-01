@@ -21,6 +21,15 @@ func NewProduct(p products.Service) *ProductController {
 	}
 }
 
+// ListProducts godoc
+// @Summary List products
+// @Tags Products
+// @Description get products
+// @Accept  json
+// @Produce  json
+// @Param token header string true "token"
+// @Success 200 {object} request
+// @Router /products [get]
 func (c *ProductController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.Request.Header.Get("token")
@@ -43,6 +52,16 @@ func (c *ProductController) GetAll() gin.HandlerFunc {
 	}
 }
 
+// StoreProducts godoc
+// @Summary Store products
+// @Tags Products
+// @Description store products
+// @Accept  json
+// @Produce  json
+// @Param token header string true "token"
+// @Param product body request true "Product to store"
+// @Success 200 {object} web.Response
+// @Router /products [post]
 func (c *ProductController) Store() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		token := ctx.Request.Header.Get("token")
@@ -52,44 +71,45 @@ func (c *ProductController) Store() gin.HandlerFunc {
 		}
 
 		var req request
-		if err := ctx.Bind(&req); err != nil {
-			ctx.JSON(404, gin.H{
-				"error": err.Error(),
-			})
+		if err := ctx.ShouldBindJSON(&req); err != nil {
+			ctx.AbortWithStatusJSON(http.StatusBadRequest,
+				gin.H{
+					"error":   "VALIDATEERR-1",
+					"message": "Invalid inputs. Please check your inputs"})
 			return
 		}
 
-		if req.Name == "" {
-			ctx.JSON(
-				http.StatusBadRequest,
-				web.DecodeError(http.StatusBadRequest, "O nome é obrigatório"),
-			)
-			return
-		}
+		// if req.Name == "" {
+		// 	ctx.JSON(
+		// 		http.StatusBadRequest,
+		// 		web.DecodeError(http.StatusBadRequest, "O nome é obrigatório"),
+		// 	)
+		// 	return
+		// }
 
-		if req.Type == "" {
-			ctx.JSON(
-				http.StatusBadRequest,
-				web.DecodeError(http.StatusBadRequest, "O tipo é obrigatório"),
-			)
-			return
-		}
+		// if req.Type == "" {
+		// 	ctx.JSON(
+		// 		http.StatusBadRequest,
+		// 		web.DecodeError(http.StatusBadRequest, "O tipo é obrigatório"),
+		// 	)
+		// 	return
+		// }
 
-		if req.Count == 0 {
-			ctx.JSON(
-				http.StatusBadRequest,
-				web.DecodeError(http.StatusBadRequest, "A quantidade é necessária"),
-			)
-			return
-		}
+		// if req.Count == 0 {
+		// 	ctx.JSON(
+		// 		http.StatusBadRequest,
+		// 		web.DecodeError(http.StatusBadRequest, "A quantidade é necessária"),
+		// 	)
+		// 	return
+		// }
 
-		if req.Price == 0 {
-			ctx.JSON(
-				http.StatusBadRequest,
-				web.DecodeError(http.StatusBadRequest, "O preço é obrigatório"),
-			)
-			return
-		}
+		// if req.Price == 0 {
+		// 	ctx.JSON(
+		// 		http.StatusBadRequest,
+		// 		web.DecodeError(http.StatusBadRequest, "O preço é obrigatório"),
+		// 	)
+		// 	return
+		// }
 
 		p, err := c.service.Store(req.Name, req.Type, req.Count, req.Price)
 		if err != nil {
@@ -208,8 +228,8 @@ func (c *ProductController) Delete() gin.HandlerFunc {
 }
 
 type request struct {
-	Name  string  `json:"name"`
-	Type  string  `json:"type"`
-	Count int     `json:"count"`
-	Price float64 `json:"price"`
+	Name  string  `json:"name" binding:"required"`
+	Type  string  `json:"type" binding:"required"`
+	Count int     `json:"count" binding:"required"`
+	Price float64 `json:"price" binding:"required"`
 }
