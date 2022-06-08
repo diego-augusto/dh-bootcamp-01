@@ -30,7 +30,7 @@ type repository struct {
 func (r *repository) GetAll() ([]Product, error) {
 	var ps []Product
 	if err := r.db.Read(&ps); err != nil {
-		return []Product{}, nil
+		return []Product{}, err
 	}
 	return ps, nil
 }
