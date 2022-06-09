@@ -30,7 +30,7 @@ func TestRepositoryGetAll(t *testing.T) {
 
 		dataJson, _ := json.Marshal(input)
 
-		fileStore := store.MemoryStore{
+		fileStore := store.MockStore{
 			ReadMock: func(data interface{}) error {
 				return json.Unmarshal(dataJson, data)
 			},
@@ -50,7 +50,7 @@ func TestRepositoryGetAll(t *testing.T) {
 
 		expectedErr := errors.New("error on connect store / database")
 
-		fileStore := store.MemoryStore{
+		fileStore := store.MockStore{
 			ReadMock: func(data interface{}) error {
 				return expectedErr
 			},

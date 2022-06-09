@@ -46,7 +46,7 @@ func TestServiceGetAll(t *testing.T) {
 
 		dataJson, _ := json.Marshal(input)
 
-		fileStore := store.MemoryStore{
+		fileStore := store.MockStore{
 			ReadMock: func(data interface{}) error {
 				return json.Unmarshal(dataJson, data)
 			},
@@ -68,7 +68,7 @@ func TestServiceGetAll(t *testing.T) {
 
 		expectErr := errors.New("erro ao receber dados")
 
-		fileStore := store.MemoryStore{
+		fileStore := store.MockStore{
 			ReadMock: func(data interface{}) error {
 				return expectErr
 			},
