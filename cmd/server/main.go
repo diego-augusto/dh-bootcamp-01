@@ -3,6 +3,7 @@ package main
 import (
 	"arquitetura-go/cmd/server/controllers"
 	"arquitetura-go/docs"
+
 	"arquitetura-go/internal/email"
 	"arquitetura-go/internal/products"
 	"arquitetura-go/pkg/store"
