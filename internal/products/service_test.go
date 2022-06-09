@@ -11,7 +11,6 @@ import (
 
 func TestServiceGetAll(t *testing.T) {
 	t.Run("deve retornar uma lista de produtos ao chamar repository", func(t *testing.T) {
-		fileStore := store.New(store.FileType, "")
 
 		input := []Product{
 			{
@@ -47,15 +46,16 @@ func TestServiceGetAll(t *testing.T) {
 
 		dataJson, _ := json.Marshal(input)
 
-		fileStoreMock := &store.Mock{
-			Data: dataJson,
-			Err:  nil,
+		fileStore := store.MockStore{
+			ReadMock: func(data interface{}) error {
+				return json.Unmarshal(dataJson, data)
+			},
+			WriteMock: func(data interface{}) error {
+				return nil
+			},
 		}
 
-		fileStore.AddMock(fileStoreMock)
-
-		//repositório real
-		repository := NewRepository(fileStore)
+		repository := NewRepository(&fileStore)
 
 		service := NewService(repository, nil)
 
@@ -65,24 +65,24 @@ func TestServiceGetAll(t *testing.T) {
 	})
 
 	t.Run("deve retornar um error ao chamar repository", func(t *testing.T) {
-		fileStore := store.New(store.FileType, "")
 
-		expect := errors.New("erro ao receber dados")
+		expectErr := errors.New("erro ao receber dados")
 
-		fileStoreMock := &store.Mock{
-			Data: []byte{},
-			Err:  expect,
+		fileStore := store.MockStore{
+			ReadMock: func(data interface{}) error {
+				return expectErr
+			},
+			WriteMock: func(data interface{}) error {
+				return nil
+			},
 		}
 
-		fileStore.AddMock(fileStoreMock)
-
-		//repositório real
-		repository := NewRepository(fileStore)
+		repository := NewRepository(&fileStore)
 
 		service := NewService(repository, nil)
 
 		_, err := service.GetAll()
 
-		assert.Equal(t, err, expect, "should be equal")
+		assert.Equal(t, err, expectErr, "should be equal")
 	})
 }
