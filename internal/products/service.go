@@ -15,7 +15,6 @@ type Service interface {
 
 type service struct {
 	repository Repository
-	email      email.ServiceEmail
 }
 
 func NewService(r Repository, e email.ServiceEmail) Service {

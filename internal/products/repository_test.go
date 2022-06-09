@@ -11,7 +11,6 @@ import (
 
 func TestRepositoryGetAll(t *testing.T) {
 	t.Run("should return a valid produc list", func(t *testing.T) {
-		fileStore := store.New(store.FileType, "")
 
 		input := []Product{
 			{
@@ -31,14 +30,16 @@ func TestRepositoryGetAll(t *testing.T) {
 
 		dataJson, _ := json.Marshal(input)
 
-		fileStoreMock := &store.Mock{
-			Data: dataJson,
-			Err:  nil,
+		fileStore := store.MemoryStore{
+			ReadMock: func(data interface{}) error {
+				return json.Unmarshal(dataJson, data)
+			},
+			WriteMock: func(data interface{}) error {
+				return nil
+			},
 		}
 
-		fileStore.AddMock(fileStoreMock)
-
-		repository := NewRepository(fileStore)
+		repository := NewRepository(&fileStore)
 
 		result, _ := repository.GetAll()
 
@@ -46,22 +47,22 @@ func TestRepositoryGetAll(t *testing.T) {
 	})
 
 	t.Run("should return err when Store returns an error", func(t *testing.T) {
-		fileStore := store.New(store.FileType, "")
 
 		expectedErr := errors.New("error on connect store / database")
 
-		fileStoreMock := &store.Mock{
-			Data: []byte{},
-			Err:  expectedErr,
+		fileStore := store.MemoryStore{
+			ReadMock: func(data interface{}) error {
+				return expectedErr
+			},
+			WriteMock: func(data interface{}) error {
+				return nil
+			},
 		}
 
-		fileStore.AddMock(fileStoreMock)
-
-		repository := NewRepository(fileStore)
+		repository := NewRepository(&fileStore)
 
 		_, err := repository.GetAll()
 
-		// assert.NotNil(t, err, "shouldnt be equal")
 		assert.Equal(t, err, expectedErr, "should be equal")
 	})
 }
