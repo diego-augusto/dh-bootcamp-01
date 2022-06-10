@@ -2,7 +2,6 @@ package products
 
 import (
 	"arquitetura-go/internal/email"
-	"fmt"
 )
 
 type Service interface {
@@ -15,7 +14,7 @@ type Service interface {
 
 type service struct {
 	repository Repository
-	email      email.ServiceEmail
+	// email      email.ServiceEmail
 }
 
 func NewService(r Repository, e email.ServiceEmail) Service {
@@ -27,15 +26,19 @@ func NewService(r Repository, e email.ServiceEmail) Service {
 
 func (s service) GetAll() ([]Product, error) {
 	ps, err := s.repository.GetAll()
-	//Novo nome
-	for i, p := range ps {
-		ps[i].Name = fmt.Sprintf("%s - %s", p.Type, p.Name)
-	}
 	if err != nil {
-		return nil, err
+		return []Product{}, err
 	}
+	//Novo nome
+	// for i, p := range ps {
+	// 	ps[i].Name = fmt.Sprintf("%s - %s", p.Type, p.Name)
+	// }
+	// if err != nil {
+	// 	return nil, err
+	// }
+	//return ps, nil
+
 	return ps, nil
-	// return s.repository.GetAll()
 }
 
 func (s service) Store(name, typee string, count int, price float64) (Product, error) {
