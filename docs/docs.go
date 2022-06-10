@@ -91,6 +91,18 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/web.Response"
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/web.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/web.Response"
+                        }
                     }
                 }
             }
