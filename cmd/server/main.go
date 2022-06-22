@@ -17,6 +17,8 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 
 	ginSwagger "github.com/swaggo/gin-swagger"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 // @title MELI Bootcamp API
@@ -39,20 +41,22 @@ func main() {
 
 	// db := store.New(store.FileType, "../../products.json")
 
-	conn, err := sql.Open("mysql", "string de conexão")
+	dataSource := "root:root@tcp(localhost:3306)/bootcamp?parseTime=true"
+
+	conn, err := sql.Open("mysql", dataSource)
 	if err != nil {
 		log.Fatal("failed to connect to mariadb")
 	}
 
-	//1. repositório
+	// Products domain implementation
+	// Repository
 	repo := productsRepository.NewMariaDBRepository(conn)
 
-	//2. serviço (regra de negócio)
-	//emailSES := email.NewSES()
+	// Service
 	emailSendGrid := email.NewSendgrid()
 	service := productsService.NewService(repo, emailSendGrid)
 
-	//3. controller
+	// Controller
 	productsController.NewProduct(r, service)
 
 	docs.SwaggerInfo.Host = os.Getenv("HOST")

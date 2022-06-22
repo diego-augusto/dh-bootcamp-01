@@ -14,11 +14,11 @@ func NewMariaDBRepository(db *sql.DB) domain.ProductRepository {
 }
 
 func (m mariaDBRepository) GetAll() ([]domain.Product, error) {
-	var products []domain.Product
+	products := []domain.Product{}
 
 	rows, err := m.db.Query("SELECT * FROM products")
 	if err != nil {
-		return nil, err
+		return products, err
 	}
 
 	defer rows.Close() // Impedir vazamento de memória
@@ -28,7 +28,7 @@ func (m mariaDBRepository) GetAll() ([]domain.Product, error) {
 
 		err := rows.Scan(&product.ID, &product.Name, &product.Type, &product.Count, &product.Price)
 		if err != nil {
-			return nil, err
+			return products, err
 		}
 
 		products = append(products, product)
@@ -44,12 +44,49 @@ func (m mariaDBRepository) Store(
 	count int,
 	price float64,
 ) (domain.Product, error) {
-	var product domain.Product
+	product := domain.Product{
+		Name:  name,
+		Type:  typee,
+		Count: count,
+		Price: price,
+	}
+
+	stmt, err := m.db.Prepare(`
+	 INSERT INTO products (name, type, count, price) 
+	 VALUES (?, ?, ?, ?)
+	`)
+	if err != nil {
+		return product, err
+	}
+
+	defer stmt.Close() // Impedir vazamento de memória
+
+	res, err := stmt.Exec(&product.Name, &product.Type, &product.Count, &product.Price)
+	if err != nil {
+		return product, err
+	}
+
+	lastID, err := res.LastInsertId()
+	if err != nil {
+		return product, err
+	}
+
+	product.ID = int(lastID)
+
 	return product, nil
 }
 
 func (m mariaDBRepository) LastID() (int, error) {
-	return 0, nil
+	var maxCount int
+
+	row := m.db.QueryRow("SELECT MAX(id) as last_id FROM products")
+
+	err := row.Scan(&maxCount)
+	if err != nil {
+		return 0, err
+	}
+
+	return maxCount, nil
 }
 
 func (m mariaDBRepository) Update(
@@ -58,15 +95,73 @@ func (m mariaDBRepository) Update(
 	count int,
 	price float64,
 ) (domain.Product, error) {
-	var product domain.Product
+	product := domain.Product{
+		ID:    id,
+		Name:  name,
+		Type:  productType,
+		Count: count,
+		Price: price,
+	}
+
+	stmt, err := m.db.Prepare(`
+	 UPDATE products
+	 SET name=?, type=?, count=?, price=?
+	 WHERE id=?
+	`)
+	if err != nil {
+		return product, err
+	}
+
+	defer stmt.Close() // Impedir vazamento de memória
+
+	_, err = stmt.Exec(
+		&product.Name,
+		&product.Type,
+		&product.Count,
+		&product.Price,
+		&product.ID,
+	)
+	if err != nil {
+		return product, err
+	}
+
 	return product, nil
 }
 
 func (m mariaDBRepository) UpdateName(id int, name string) (domain.Product, error) {
-	var product domain.Product
+	product := domain.Product{ID: id, Name: name}
+
+	stmt, err := m.db.Prepare(`
+	 UPDATE products
+	 SET name=?
+	 WHERE id=?
+	`)
+	if err != nil {
+		return product, err
+	}
+
+	defer stmt.Close() // Impedir vazamento de memória
+
+	_, err = stmt.Exec(&product.Name, &product.ID)
+	if err != nil {
+		return product, err
+	}
+
 	return product, nil
 }
 
 func (m mariaDBRepository) Delete(id int) error {
+	stmt, err := m.db.Prepare("DELETE FROM products WHERE id=?")
+	if err != nil {
+		return err
+	}
+
+	defer stmt.Close() // Impedir vazamento de memória
+
+	_, err = stmt.Exec(id)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }

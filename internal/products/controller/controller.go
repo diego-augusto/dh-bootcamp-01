@@ -30,7 +30,6 @@ func NewProduct(c *gin.Engine, p domain.ProductService) {
 		pr.PATCH("/:id", pc.UpdateName())
 		pr.DELETE("/:id", pc.Delete())
 	}
-
 }
 
 // ListProducts godoc
@@ -148,8 +147,8 @@ func (c *ProductController) UpdateName() gin.HandlerFunc {
 			return
 		}
 
-		var req request
-		if err := ctx.ShouldBindJSON(&req); err != nil {
+		var req requestUpdate
+		if err := ctx.ShouldBind(&req); err != nil {
 			ctx.JSON(400, gin.H{"error": err.Error()})
 			return
 		}
@@ -190,4 +189,11 @@ type request struct {
 	Type  string  `json:"type" binding:"required"`
 	Count int     `json:"count" binding:"required"`
 	Price float64 `json:"price" binding:"required"`
+}
+
+type requestUpdate struct {
+	Name  string  `json:"name" binding:"required"`
+	Type  string  `json:"type"`
+	Count int     `json:"count"`
+	Price float64 `json:"price"`
 }

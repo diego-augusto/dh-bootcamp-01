@@ -26,25 +26,13 @@ func (s service) GetAll() ([]domain.Product, error) {
 	return ps, nil
 }
 
-func (s service) Store(name, typee string, count int, price float64) (domain.Product, error) {
-	lastID, err := s.repository.LastID()
-
+func (s service) Store(name, productType string, count int, price float64) (domain.Product, error) {
+	product, err := s.repository.Store(0, name, productType, count, price)
 	if err != nil {
 		return domain.Product{}, err
 	}
-
-	lastID++
-
-	product, err := s.repository.Store(lastID, name, typee, count, price)
-
-	if err != nil {
-		return domain.Product{}, err
-	}
-
-	// s.email.SendEmail(name)
 
 	return product, nil
-
 }
 
 func (s service) Update(id int, name, productType string, count int, price float64) (domain.Product, error) {
@@ -52,7 +40,8 @@ func (s service) Update(id int, name, productType string, count int, price float
 	if err != nil {
 		return domain.Product{}, err
 	}
-	return product, err
+
+	return product, nil
 }
 
 func (s service) UpdateName(id int, name string) (domain.Product, error) {
@@ -60,7 +49,8 @@ func (s service) UpdateName(id int, name string) (domain.Product, error) {
 	if err != nil {
 		return domain.Product{}, err
 	}
-	return product, err
+
+	return product, nil
 }
 
 func (s service) Delete(id int) error {
@@ -68,5 +58,6 @@ func (s service) Delete(id int) error {
 	if err != nil {
 		return err
 	}
-	return err
+
+	return nil
 }

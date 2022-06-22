@@ -4,6 +4,7 @@ go 1.17
 
 require (
 	github.com/gin-gonic/gin v1.8.0
+	github.com/go-sql-driver/mysql v1.6.0
 	github.com/joho/godotenv v1.4.0
 	github.com/stretchr/testify v1.7.2
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2
