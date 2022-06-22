@@ -16,7 +16,7 @@ func NewMariaDBRepository(db *sql.DB) domain.ProductRepository {
 func (m mariaDBRepository) GetAll() ([]domain.Product, error) {
 	products := []domain.Product{}
 
-	rows, err := m.db.Query("SELECT * FROM products")
+	rows, err := m.db.Query(sqlGetAll)
 	if err != nil {
 		return products, err
 	}
@@ -51,10 +51,7 @@ func (m mariaDBRepository) Store(
 		Price: price,
 	}
 
-	stmt, err := m.db.Prepare(`
-	 INSERT INTO products (name, type, count, price) 
-	 VALUES (?, ?, ?, ?)
-	`)
+	stmt, err := m.db.Prepare(sqlStore)
 	if err != nil {
 		return product, err
 	}
@@ -79,7 +76,7 @@ func (m mariaDBRepository) Store(
 func (m mariaDBRepository) LastID() (int, error) {
 	var maxCount int
 
-	row := m.db.QueryRow("SELECT MAX(id) as last_id FROM products")
+	row := m.db.QueryRow(sqlLastID)
 
 	err := row.Scan(&maxCount)
 	if err != nil {
@@ -103,11 +100,7 @@ func (m mariaDBRepository) Update(
 		Price: price,
 	}
 
-	stmt, err := m.db.Prepare(`
-	 UPDATE products
-	 SET name=?, type=?, count=?, price=?
-	 WHERE id=?
-	`)
+	stmt, err := m.db.Prepare(sqlUpdate)
 	if err != nil {
 		return product, err
 	}
@@ -131,11 +124,7 @@ func (m mariaDBRepository) Update(
 func (m mariaDBRepository) UpdateName(id int, name string) (domain.Product, error) {
 	product := domain.Product{ID: id, Name: name}
 
-	stmt, err := m.db.Prepare(`
-	 UPDATE products
-	 SET name=?
-	 WHERE id=?
-	`)
+	stmt, err := m.db.Prepare(sqlUpdateName)
 	if err != nil {
 		return product, err
 	}
@@ -151,7 +140,7 @@ func (m mariaDBRepository) UpdateName(id int, name string) (domain.Product, erro
 }
 
 func (m mariaDBRepository) Delete(id int) error {
-	stmt, err := m.db.Prepare("DELETE FROM products WHERE id=?")
+	stmt, err := m.db.Prepare(sqlDelete)
 	if err != nil {
 		return err
 	}
