@@ -20,3 +20,5 @@ go.work
 
 # env file
 .env
+
+/db/.data

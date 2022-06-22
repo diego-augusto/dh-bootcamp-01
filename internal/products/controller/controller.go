@@ -1,7 +1,7 @@
-package controllers
+package controller
 
 import (
-	"arquitetura-go/internal/products"
+	"arquitetura-go/internal/products/domain"
 	"arquitetura-go/pkg/web"
 	"fmt"
 	"net/http"
@@ -12,10 +12,10 @@ import (
 )
 
 type ProductController struct {
-	service products.Service
+	service domain.ProductService
 }
 
-func NewProduct(p products.Service) *ProductController {
+func NewProduct(p domain.ProductService) *ProductController {
 	return &ProductController{
 		service: p,
 	}
@@ -74,38 +74,6 @@ func (c *ProductController) Store() gin.HandlerFunc {
 					"message": "Invalid inputs. Please check your inputs"})
 			return
 		}
-
-		// if req.Name == "" {
-		// 	ctx.JSON(
-		// 		http.StatusBadRequest,
-		// 		web.DecodeError(http.StatusBadRequest, "O nome é obrigatório"),
-		// 	)
-		// 	return
-		// }
-
-		// if req.Type == "" {
-		// 	ctx.JSON(
-		// 		http.StatusBadRequest,
-		// 		web.DecodeError(http.StatusBadRequest, "O tipo é obrigatório"),
-		// 	)
-		// 	return
-		// }
-
-		// if req.Count == 0 {
-		// 	ctx.JSON(
-		// 		http.StatusBadRequest,
-		// 		web.DecodeError(http.StatusBadRequest, "A quantidade é necessária"),
-		// 	)
-		// 	return
-		// }
-
-		// if req.Price == 0 {
-		// 	ctx.JSON(
-		// 		http.StatusBadRequest,
-		// 		web.DecodeError(http.StatusBadRequest, "O preço é obrigatório"),
-		// 	)
-		// 	return
-		// }
 
 		p, err := c.service.Store(req.Name, req.Type, req.Count, req.Price)
 		if err != nil {

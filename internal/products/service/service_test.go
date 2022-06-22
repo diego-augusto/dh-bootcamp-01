@@ -1,8 +1,9 @@
-package service_test
+package service
 
 import (
-	"arquitetura-go/internal/products"
-	"arquitetura-go/internal/products/mocks"
+	"arquitetura-go/internal/products/domain"
+	"arquitetura-go/internal/products/domain/mocks"
+	"arquitetura-go/internal/products/repository"
 	"arquitetura-go/pkg/store"
 	"encoding/json"
 	"errors"
@@ -15,7 +16,7 @@ func TestServiceGetAll(t *testing.T) {
 	t.Run("deve retornar uma lista de produtos ao chamar repository", func(t *testing.T) {
 		fileStore := store.New(store.FileType, "")
 
-		input := []products.Product{
+		input := []domain.Product{
 			{
 				ID:    1,
 				Name:  "CellPhone",
@@ -25,22 +26,6 @@ func TestServiceGetAll(t *testing.T) {
 			}, {
 				ID:    2,
 				Name:  "Notebook",
-				Type:  "Tech",
-				Count: 10,
-				Price: 1750.5,
-			},
-		}
-
-		expect := []products.Product{
-			{
-				ID:    1,
-				Name:  "Tech - CellPhone",
-				Type:  "Tech",
-				Count: 3,
-				Price: 250,
-			}, {
-				ID:    2,
-				Name:  "Tech - Notebook",
 				Type:  "Tech",
 				Count: 10,
 				Price: 1750.5,
@@ -57,13 +42,13 @@ func TestServiceGetAll(t *testing.T) {
 		fileStore.AddMock(fileStoreMock)
 
 		//repositório real
-		repository := products.NewRepository(fileStore)
+		repository := repository.NewRepository(fileStore)
 
-		service := products.NewService(repository, nil)
+		service := NewService(repository, nil)
 
 		result, _ := service.GetAll()
 
-		assert.Equal(t, result, expect, "should be equal")
+		assert.Equal(t, result[0].Name, input[0].Name, "should be equal")
 	})
 
 	t.Run("deve retornar um error ao chamar repository", func(t *testing.T) {
@@ -79,9 +64,9 @@ func TestServiceGetAll(t *testing.T) {
 		fileStore.AddMock(fileStoreMock)
 
 		//repositório real
-		repository := products.NewRepository(fileStore)
+		repository := repository.NewRepository(fileStore)
 
-		service := products.NewService(repository, nil)
+		service := NewService(repository, nil)
 
 		_, err := service.GetAll()
 
@@ -92,7 +77,7 @@ func TestServiceGetAll(t *testing.T) {
 func TestGetAll(t *testing.T) {
 	mockRepo := new(mocks.ProductRepository)
 
-	p := products.Product{
+	p := domain.Product{
 		ID:    1,
 		Name:  "iPhone 13",
 		Type:  "Eletrônico",
@@ -100,13 +85,13 @@ func TestGetAll(t *testing.T) {
 		Price: 5000,
 	}
 
-	pList := make([]products.Product, 0)
+	pList := make([]domain.Product, 0)
 	pList = append(pList, p)
 
 	t.Run("success", func(t *testing.T) {
 		mockRepo.On("GetAll").Return(pList, nil).Once()
 
-		s := products.NewService(mockRepo, nil)
+		s := NewService(mockRepo, nil)
 		list, err := s.GetAll()
 
 		assert.NoError(t, err)
@@ -121,7 +106,7 @@ func TestGetAll(t *testing.T) {
 			Return(nil, errors.New("failed to retrieve products")).
 			Once()
 
-		s := products.NewService(mockRepo, nil)
+		s := NewService(mockRepo, nil)
 		_, err := s.GetAll()
 
 		assert.NotNil(t, err)

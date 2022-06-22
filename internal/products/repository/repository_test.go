@@ -1,7 +1,7 @@
-package repository_test
+package repository
 
 import (
-	"arquitetura-go/internal/products"
+	"arquitetura-go/internal/products/domain"
 	"arquitetura-go/pkg/store"
 	"encoding/json"
 	"errors"
@@ -14,7 +14,7 @@ func TestRepositoryGetAll(t *testing.T) {
 	t.Run("should return a valid produc list", func(t *testing.T) {
 		fileStore := store.New(store.FileType, "")
 
-		input := []products.Product{
+		input := []domain.Product{
 			{
 				ID:    1,
 				Name:  "CellPhone",
@@ -39,7 +39,7 @@ func TestRepositoryGetAll(t *testing.T) {
 
 		fileStore.AddMock(fileStoreMock)
 
-		repository := products.NewRepository(fileStore)
+		repository := NewRepository(fileStore)
 
 		result, _ := repository.GetAll()
 
@@ -58,7 +58,7 @@ func TestRepositoryGetAll(t *testing.T) {
 
 		fileStore.AddMock(fileStoreMock)
 
-		repository := products.NewRepository(fileStore)
+		repository := NewRepository(fileStore)
 
 		_, err := repository.GetAll()
 

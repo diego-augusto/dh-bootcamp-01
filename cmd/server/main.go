@@ -1,11 +1,12 @@
 package main
 
 import (
-	"arquitetura-go/cmd/server/controllers"
 	"arquitetura-go/docs"
+	productsController "arquitetura-go/internal/products/controller"
+	productsRepository "arquitetura-go/internal/products/repository"
+	productsService "arquitetura-go/internal/products/service"
 
 	"arquitetura-go/internal/email"
-	"arquitetura-go/internal/products"
 	"arquitetura-go/pkg/store"
 	"arquitetura-go/pkg/web"
 	"log"
@@ -70,15 +71,15 @@ func main() {
 	db := store.New(store.FileType, "../../products.json")
 
 	//1. repositório
-	repo := products.NewRepository(db)
+	repo := productsRepository.NewRepository(db)
 
 	//2. serviço (regra de negócio)
 	//emailSES := email.NewSES()
 	emailSendGrid := email.NewSendgrid()
-	service := products.NewService(repo, emailSendGrid)
+	service := productsService.NewService(repo, emailSendGrid)
 
 	//3. controller
-	p := controllers.NewProduct(service)
+	p := productsController.NewProduct(service)
 
 	r := gin.Default()
 

@@ -1,8 +1,9 @@
-package controllers_test
+package controller
 
 import (
-	"arquitetura-go/cmd/server/controllers"
-	"arquitetura-go/internal/products"
+	"arquitetura-go/internal/products/domain"
+	"arquitetura-go/internal/products/repository"
+	"arquitetura-go/internal/products/service"
 	"arquitetura-go/pkg/store"
 	"bytes"
 	"encoding/json"
@@ -22,10 +23,10 @@ func createServer() *gin.Engine {
 
 	db := store.New(store.FileType, "../../../products.json")
 
-	repo := products.NewRepository(db)
-	service := products.NewService(repo, nil)
+	repo := repository.NewRepository(db)
+	service := service.NewService(repo, nil)
 
-	p := controllers.NewProduct(service)
+	p := NewProduct(service)
 
 	r := gin.Default()
 
@@ -63,7 +64,7 @@ func Test_GetProduct_OK(t *testing.T) {
 
 	objRes := struct {
 		Code int
-		Data []products.Product
+		Data []domain.Product
 	}{}
 
 	err := json.Unmarshal(rr.Body.Bytes(), &objRes)

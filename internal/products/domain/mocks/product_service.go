@@ -1,7 +1,7 @@
 package mocks
 
 import (
-	"arquitetura-go/internal/products"
+	"arquitetura-go/internal/products/domain"
 
 	"github.com/stretchr/testify/mock"
 )
@@ -10,16 +10,16 @@ type ProductService struct {
 	mock.Mock
 }
 
-func (p *ProductService) GetAll() ([]products.Product, error) {
+func (p *ProductService) GetAll() ([]domain.Product, error) {
 	args := p.Called()
 
-	var product []products.Product
+	var product []domain.Product
 
-	if rf, ok := args.Get(0).(func() []products.Product); ok {
+	if rf, ok := args.Get(0).(func() []domain.Product); ok {
 		product = rf()
 	} else {
 		if args.Get(0) != nil {
-			product = args.Get(0).([]products.Product)
+			product = args.Get(0).([]domain.Product)
 		}
 	}
 
@@ -39,21 +39,21 @@ func (p *ProductService) Store(
 	name, typee string,
 	count int,
 	price float64,
-) (products.Product, error) {
+) (domain.Product, error) {
 	args := p.Called()
 
-	var product products.Product
+	var product domain.Product
 
 	if rf, ok := args.Get(0).(func(
 		id int,
 		name, typee string,
 		count int,
 		price float64,
-	) products.Product); ok {
+	) domain.Product); ok {
 		product = rf(id, name, typee, count, price)
 	} else {
 		if args.Get(0) != nil {
-			product = args.Get(0).(products.Product)
+			product = args.Get(0).(domain.Product)
 		}
 	}
 
@@ -73,21 +73,21 @@ func (p *ProductService) Update(
 	name, productType string,
 	count int,
 	price float64,
-) (products.Product, error) {
+) (domain.Product, error) {
 	args := p.Called()
 
-	var product products.Product
+	var product domain.Product
 
 	if rf, ok := args.Get(0).(func(
 		id int,
 		name, productType string,
 		count int,
 		price float64,
-	) products.Product); ok {
+	) domain.Product); ok {
 		product = rf(id, name, productType, count, price)
 	} else {
 		if args.Get(0) != nil {
-			product = args.Get(0).(products.Product)
+			product = args.Get(0).(domain.Product)
 		}
 	}
 
@@ -105,16 +105,16 @@ func (p *ProductService) Update(
 func (p *ProductService) UpdateName(
 	id int,
 	name string,
-) (products.Product, error) {
+) (domain.Product, error) {
 	args := p.Called()
 
-	var product products.Product
+	var product domain.Product
 
-	if rf, ok := args.Get(0).(func(id int, name string) products.Product); ok {
+	if rf, ok := args.Get(0).(func(id int, name string) domain.Product); ok {
 		product = rf(id, name)
 	} else {
 		if args.Get(0) != nil {
-			product = args.Get(0).(products.Product)
+			product = args.Get(0).(domain.Product)
 		}
 	}
 
