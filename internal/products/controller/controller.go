@@ -8,6 +8,8 @@ import (
 	"os"
 	"strconv"
 
+	"arquitetura-go/internal/shared/middleware"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,10 +17,20 @@ type ProductController struct {
 	service domain.ProductService
 }
 
-func NewProduct(p domain.ProductService) *ProductController {
-	return &ProductController{
-		service: p,
+func NewProduct(c *gin.Engine, p domain.ProductService) {
+	pc := &ProductController{service: p}
+
+	pr := c.Group("/products")
+	{
+		pr.Use(middleware.TokenAuthMiddleware())
+
+		pr.POST("/", pc.Store())
+		pr.GET("/", pc.GetAll())
+		pr.PUT("/:id", pc.Update())
+		pr.PATCH("/:id", pc.UpdateName())
+		pr.DELETE("/:id", pc.Delete())
 	}
+
 }
 
 // ListProducts godoc

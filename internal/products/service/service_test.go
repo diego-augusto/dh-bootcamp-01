@@ -3,7 +3,7 @@ package service
 import (
 	"arquitetura-go/internal/products/domain"
 	"arquitetura-go/internal/products/domain/mocks"
-	"arquitetura-go/internal/products/repository"
+	repository "arquitetura-go/internal/products/repository/file"
 	"arquitetura-go/pkg/store"
 	"encoding/json"
 	"errors"

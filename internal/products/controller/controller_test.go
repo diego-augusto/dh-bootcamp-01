@@ -2,7 +2,7 @@ package controller
 
 import (
 	"arquitetura-go/internal/products/domain"
-	"arquitetura-go/internal/products/repository"
+	repository "arquitetura-go/internal/products/repository/file"
 	"arquitetura-go/internal/products/service"
 	"arquitetura-go/pkg/store"
 	"bytes"
@@ -26,15 +26,11 @@ func createServer() *gin.Engine {
 	repo := repository.NewRepository(db)
 	service := service.NewService(repo, nil)
 
-	p := NewProduct(service)
+	ginEngine := gin.Default()
 
-	r := gin.Default()
+	NewProduct(ginEngine, service)
 
-	pr := r.Group("/products")
-	pr.POST("/", p.Store())
-	pr.GET("/", p.GetAll())
-
-	return r
+	return ginEngine
 }
 
 func createRequestTest(
