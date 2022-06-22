@@ -3,14 +3,12 @@ package main
 import (
 	"arquitetura-go/docs"
 	productsController "arquitetura-go/internal/products/controller"
-	productsRepository "arquitetura-go/internal/products/repository"
+	productsRepository "arquitetura-go/internal/products/repository/mariadb"
 	productsService "arquitetura-go/internal/products/service"
+	"database/sql"
 
 	"arquitetura-go/internal/email"
-	"arquitetura-go/pkg/store"
-	"arquitetura-go/pkg/web"
 	"log"
-	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -20,37 +18,6 @@ import (
 
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
-
-func TokenAuthMiddleware() gin.HandlerFunc {
-	requiredToken := os.Getenv("TOKEN")
-
-	// We want to make sure the token is set, bail if not
-	if requiredToken == "" {
-		log.Fatal("Please set token environment variable")
-	}
-
-	return func(c *gin.Context) {
-		token := c.GetHeader("token")
-
-		if token == "" {
-			c.AbortWithStatusJSON(
-				http.StatusUnauthorized,
-				web.DecodeError(http.StatusUnauthorized, "Token vazio"),
-			)
-			return
-		}
-
-		if token != requiredToken {
-			c.AbortWithStatusJSON(
-				http.StatusUnauthorized,
-				web.DecodeError(http.StatusUnauthorized, "Token inválido"),
-			)
-			return
-		}
-
-		c.Next()
-	}
-}
 
 // @title MELI Bootcamp API
 // @version 1.0
@@ -68,10 +35,17 @@ func main() {
 		log.Fatal("failed to load .env")
 	}
 
-	db := store.New(store.FileType, "../../products.json")
+	r := gin.Default()
+
+	// db := store.New(store.FileType, "../../products.json")
+
+	conn, err := sql.Open("mysql", "string de conexão")
+	if err != nil {
+		log.Fatal("failed to connect to mariadb")
+	}
 
 	//1. repositório
-	repo := productsRepository.NewRepository(db)
+	repo := productsRepository.NewMariaDBRepository(conn)
 
 	//2. serviço (regra de negócio)
 	//emailSES := email.NewSES()
@@ -79,23 +53,10 @@ func main() {
 	service := productsService.NewService(repo, emailSendGrid)
 
 	//3. controller
-	p := productsController.NewProduct(service)
-
-	r := gin.Default()
+	productsController.NewProduct(r, service)
 
 	docs.SwaggerInfo.Host = os.Getenv("HOST")
 	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
-
-	pr := r.Group("/products")
-	{
-		pr.Use(TokenAuthMiddleware())
-
-		pr.POST("/", p.Store())
-		pr.GET("/", p.GetAll())
-		pr.PUT("/:id", p.Update())
-		pr.PATCH("/:id", p.UpdateName())
-		pr.DELETE("/:id", p.Delete())
-	}
 
 	r.Run()
 }
