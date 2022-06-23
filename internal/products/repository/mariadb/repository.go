@@ -2,6 +2,7 @@ package repository
 
 import (
 	"arquitetura-go/internal/products/domain"
+	"context"
 	"database/sql"
 )
 
@@ -13,10 +14,10 @@ func NewMariaDBRepository(db *sql.DB) domain.ProductRepository {
 	return mariaDBRepository{db: db}
 }
 
-func (m mariaDBRepository) GetAll() ([]domain.Product, error) {
+func (m mariaDBRepository) GetAll(ctx context.Context) ([]domain.Product, error) {
 	products := []domain.Product{}
 
-	rows, err := m.db.Query(sqlGetAll)
+	rows, err := m.db.QueryContext(ctx, sqlGetAll)
 	if err != nil {
 		return products, err
 	}
@@ -38,6 +39,7 @@ func (m mariaDBRepository) GetAll() ([]domain.Product, error) {
 }
 
 func (m mariaDBRepository) Store(
+	ctx context.Context,
 	id int,
 	name,
 	typee string,
@@ -51,14 +53,14 @@ func (m mariaDBRepository) Store(
 		Price: price,
 	}
 
-	stmt, err := m.db.Prepare(sqlStore)
+	stmt, err := m.db.PrepareContext(ctx, sqlStore)
 	if err != nil {
 		return product, err
 	}
 
 	defer stmt.Close() // Impedir vazamento de memória
 
-	res, err := stmt.Exec(&product.Name, &product.Type, &product.Count, &product.Price)
+	res, err := stmt.ExecContext(ctx, &product.Name, &product.Type, &product.Count, &product.Price)
 	if err != nil {
 		return product, err
 	}
@@ -87,6 +89,7 @@ func (m mariaDBRepository) LastID() (int, error) {
 }
 
 func (m mariaDBRepository) Update(
+	ctx context.Context,
 	id int,
 	name, productType string,
 	count int,
@@ -100,14 +103,15 @@ func (m mariaDBRepository) Update(
 		Price: price,
 	}
 
-	stmt, err := m.db.Prepare(sqlUpdate)
+	stmt, err := m.db.PrepareContext(ctx, sqlUpdate)
 	if err != nil {
 		return product, err
 	}
 
 	defer stmt.Close() // Impedir vazamento de memória
 
-	_, err = stmt.Exec(
+	_, err = stmt.ExecContext(
+		ctx,
 		&product.Name,
 		&product.Type,
 		&product.Count,
@@ -121,17 +125,17 @@ func (m mariaDBRepository) Update(
 	return product, nil
 }
 
-func (m mariaDBRepository) UpdateName(id int, name string) (domain.Product, error) {
+func (m mariaDBRepository) UpdateName(ctx context.Context, id int, name string) (domain.Product, error) {
 	product := domain.Product{ID: id, Name: name}
 
-	stmt, err := m.db.Prepare(sqlUpdateName)
+	stmt, err := m.db.PrepareContext(ctx, sqlUpdateName)
 	if err != nil {
 		return product, err
 	}
 
 	defer stmt.Close() // Impedir vazamento de memória
 
-	_, err = stmt.Exec(&product.Name, &product.ID)
+	_, err = stmt.ExecContext(ctx, &product.Name, &product.ID)
 	if err != nil {
 		return product, err
 	}
@@ -139,15 +143,15 @@ func (m mariaDBRepository) UpdateName(id int, name string) (domain.Product, erro
 	return product, nil
 }
 
-func (m mariaDBRepository) Delete(id int) error {
-	stmt, err := m.db.Prepare(sqlDelete)
+func (m mariaDBRepository) Delete(ctx context.Context, id int) error {
+	stmt, err := m.db.PrepareContext(ctx, sqlDelete)
 	if err != nil {
 		return err
 	}
 
 	defer stmt.Close() // Impedir vazamento de memória
 
-	_, err = stmt.Exec(id)
+	_, err = stmt.ExecContext(ctx, id)
 	if err != nil {
 		return err
 	}

@@ -5,6 +5,7 @@ import (
 	"arquitetura-go/internal/products/domain/mocks"
 	repository "arquitetura-go/internal/products/repository/file"
 	"arquitetura-go/pkg/store"
+	"context"
 	"encoding/json"
 	"errors"
 	"testing"
@@ -46,7 +47,7 @@ func TestServiceGetAll(t *testing.T) {
 
 		service := NewService(repository, nil)
 
-		result, _ := service.GetAll()
+		result, _ := service.GetAll(context.Background())
 
 		assert.Equal(t, result[0].Name, input[0].Name, "should be equal")
 	})
@@ -68,7 +69,7 @@ func TestServiceGetAll(t *testing.T) {
 
 		service := NewService(repository, nil)
 
-		_, err := service.GetAll()
+		_, err := service.GetAll(context.Background())
 
 		assert.Equal(t, err, expect, "should be equal")
 	})
@@ -92,7 +93,7 @@ func TestGetAll(t *testing.T) {
 		mockRepo.On("GetAll").Return(pList, nil).Once()
 
 		s := NewService(mockRepo, nil)
-		list, err := s.GetAll()
+		list, err := s.GetAll(context.Background())
 
 		assert.NoError(t, err)
 
@@ -107,7 +108,7 @@ func TestGetAll(t *testing.T) {
 			Once()
 
 		s := NewService(mockRepo, nil)
-		_, err := s.GetAll()
+		_, err := s.GetAll(context.Background())
 
 		assert.NotNil(t, err)
 

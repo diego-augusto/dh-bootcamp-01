@@ -5,7 +5,6 @@ import (
 	"arquitetura-go/pkg/web"
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 
 	"arquitetura-go/internal/shared/middleware"
@@ -43,15 +42,7 @@ func NewProduct(c *gin.Engine, p domain.ProductService) {
 // @Router /products [get]
 func (c *ProductController) GetAll() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		token := ctx.Request.Header.Get("token")
-		if token != os.Getenv("TOKEN") {
-			ctx.JSON(401, gin.H{
-				"error": "token inválido",
-			})
-			return
-		}
-
-		p, err := c.service.GetAll()
+		p, err := c.service.GetAll(ctx.Request.Context())
 		if err != nil {
 			ctx.JSON(404, gin.H{
 				"error": err.Error(),
@@ -86,7 +77,7 @@ func (c *ProductController) Store() gin.HandlerFunc {
 			return
 		}
 
-		p, err := c.service.Store(req.Name, req.Type, req.Count, req.Price)
+		p, err := c.service.Store(ctx.Request.Context(), req.Name, req.Type, req.Count, req.Price)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 			return
@@ -130,7 +121,7 @@ func (c *ProductController) Update() gin.HandlerFunc {
 			return
 		}
 
-		p, err := c.service.Update(int(id), req.Name, req.Type, req.Count, req.Price)
+		p, err := c.service.Update(ctx.Request.Context(), int(id), req.Name, req.Type, req.Count, req.Price)
 		if err != nil {
 			ctx.JSON(404, gin.H{"error": err.Error()})
 			return
@@ -157,7 +148,7 @@ func (c *ProductController) UpdateName() gin.HandlerFunc {
 			return
 		}
 
-		p, err := c.service.UpdateName(int(id), req.Name)
+		p, err := c.service.UpdateName(ctx.Request.Context(), int(id), req.Name)
 		if err != nil {
 			ctx.JSON(404, gin.H{"error": err.Error()})
 			return
@@ -174,7 +165,7 @@ func (c *ProductController) Delete() gin.HandlerFunc {
 			return
 		}
 
-		err = c.service.Delete(int(id))
+		err = c.service.Delete(ctx.Request.Context(), int(id))
 		if err != nil {
 			ctx.JSON(404, gin.H{"error": err.Error()})
 			return

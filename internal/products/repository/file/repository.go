@@ -3,6 +3,7 @@ package repository
 import (
 	"arquitetura-go/internal/products/domain"
 	"arquitetura-go/pkg/store"
+	"context"
 	"fmt"
 )
 
@@ -17,7 +18,7 @@ type repository struct {
 	db store.Store
 }
 
-func (r *repository) GetAll() ([]domain.Product, error) {
+func (r *repository) GetAll(ctx context.Context) ([]domain.Product, error) {
 	var ps []domain.Product
 	if err := r.db.Read(&ps); err != nil {
 		return []domain.Product{}, err
@@ -38,7 +39,7 @@ func (r *repository) LastID() (int, error) {
 	return ps[len(ps)-1].ID, nil
 }
 
-func (r *repository) Store(id int, name, productType string, count int, price float64) (domain.Product, error) {
+func (r *repository) Store(ctx context.Context, id int, name, productType string, count int, price float64) (domain.Product, error) {
 	var ps []domain.Product
 	if err := r.db.Read(&ps); err != nil {
 		return domain.Product{}, err
@@ -57,7 +58,7 @@ func (r *repository) Store(id int, name, productType string, count int, price fl
 	return p, nil
 }
 
-func (repository) Update(id int, name, productType string, count int, price float64) (domain.Product, error) {
+func (repository) Update(ctx context.Context, id int, name, productType string, count int, price float64) (domain.Product, error) {
 	p := domain.Product{Name: name, Type: productType, Count: count, Price: price}
 	updated := false
 	for i := range ps {
@@ -73,7 +74,7 @@ func (repository) Update(id int, name, productType string, count int, price floa
 	return p, nil
 }
 
-func (repository) UpdateName(id int, name string) (domain.Product, error) {
+func (repository) UpdateName(ctx context.Context, id int, name string) (domain.Product, error) {
 	var p domain.Product
 	updated := false
 	for i := range ps {
@@ -89,7 +90,7 @@ func (repository) UpdateName(id int, name string) (domain.Product, error) {
 	return p, nil
 }
 
-func (repository) Delete(id int) error {
+func (repository) Delete(ctx context.Context, id int) error {
 	deleted := false
 	var index int
 	for i := range ps {

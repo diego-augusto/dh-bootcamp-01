@@ -3,6 +3,7 @@ package repository
 import (
 	"arquitetura-go/internal/products/domain"
 	"arquitetura-go/pkg/store"
+	"context"
 	"encoding/json"
 	"errors"
 	"testing"
@@ -41,7 +42,7 @@ func TestRepositoryGetAll(t *testing.T) {
 
 		repository := NewRepository(fileStore)
 
-		result, _ := repository.GetAll()
+		result, _ := repository.GetAll(context.Background())
 
 		assert.Equal(t, result, input, "should be equal")
 	})
@@ -60,7 +61,7 @@ func TestRepositoryGetAll(t *testing.T) {
 
 		repository := NewRepository(fileStore)
 
-		_, err := repository.GetAll()
+		_, err := repository.GetAll(context.Background())
 
 		// assert.NotNil(t, err, "shouldnt be equal")
 		assert.Equal(t, err, expectedErr, "should be equal")

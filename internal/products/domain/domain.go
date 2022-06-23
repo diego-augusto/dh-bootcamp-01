@@ -1,5 +1,7 @@
 package domain
 
+import "context"
+
 type Product struct {
 	ID    int     `json:"id"`
 	Name  string  `json:"name"`
@@ -9,18 +11,18 @@ type Product struct {
 }
 
 type ProductRepository interface {
-	GetAll() ([]Product, error)
-	Store(id int, name, typee string, count int, price float64) (Product, error)
+	GetAll(ctx context.Context) ([]Product, error)
+	Store(ctx context.Context, id int, name, typee string, count int, price float64) (Product, error)
 	LastID() (int, error)
-	Update(id int, name, productType string, count int, price float64) (Product, error)
-	UpdateName(id int, name string) (Product, error)
-	Delete(id int) error
+	Update(ctx context.Context, id int, name, productType string, count int, price float64) (Product, error)
+	UpdateName(ctx context.Context, id int, name string) (Product, error)
+	Delete(ctx context.Context, id int) error
 }
 
 type ProductService interface {
-	GetAll() ([]Product, error)
-	Store(name, typee string, count int, price float64) (Product, error)
-	Update(id int, name, productType string, count int, price float64) (Product, error)
-	UpdateName(id int, name string) (Product, error)
-	Delete(id int) error
+	GetAll(ctx context.Context) ([]Product, error)
+	Store(ctx context.Context, name, typee string, count int, price float64) (Product, error)
+	Update(ctx context.Context, id int, name, productType string, count int, price float64) (Product, error)
+	UpdateName(ctx context.Context, id int, name string) (Product, error)
+	Delete(ctx context.Context, id int) error
 }

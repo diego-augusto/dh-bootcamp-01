@@ -3,6 +3,7 @@ package service
 import (
 	"arquitetura-go/internal/email"
 	"arquitetura-go/internal/products/domain"
+	"context"
 )
 
 type service struct {
@@ -17,8 +18,8 @@ func NewService(r domain.ProductRepository, e email.ServiceEmail) domain.Product
 	}
 }
 
-func (s service) GetAll() ([]domain.Product, error) {
-	ps, err := s.repository.GetAll()
+func (s service) GetAll(ctx context.Context) ([]domain.Product, error) {
+	ps, err := s.repository.GetAll(ctx)
 	if err != nil {
 		return []domain.Product{}, err
 	}
@@ -26,8 +27,8 @@ func (s service) GetAll() ([]domain.Product, error) {
 	return ps, nil
 }
 
-func (s service) Store(name, productType string, count int, price float64) (domain.Product, error) {
-	product, err := s.repository.Store(0, name, productType, count, price)
+func (s service) Store(ctx context.Context, name, productType string, count int, price float64) (domain.Product, error) {
+	product, err := s.repository.Store(ctx, 0, name, productType, count, price)
 	if err != nil {
 		return domain.Product{}, err
 	}
@@ -35,8 +36,8 @@ func (s service) Store(name, productType string, count int, price float64) (doma
 	return product, nil
 }
 
-func (s service) Update(id int, name, productType string, count int, price float64) (domain.Product, error) {
-	product, err := s.repository.Update(id, name, productType, count, price)
+func (s service) Update(ctx context.Context, id int, name, productType string, count int, price float64) (domain.Product, error) {
+	product, err := s.repository.Update(ctx, id, name, productType, count, price)
 	if err != nil {
 		return domain.Product{}, err
 	}
@@ -44,8 +45,8 @@ func (s service) Update(id int, name, productType string, count int, price float
 	return product, nil
 }
 
-func (s service) UpdateName(id int, name string) (domain.Product, error) {
-	product, err := s.repository.UpdateName(id, name)
+func (s service) UpdateName(ctx context.Context, id int, name string) (domain.Product, error) {
+	product, err := s.repository.UpdateName(ctx, id, name)
 	if err != nil {
 		return domain.Product{}, err
 	}
@@ -53,8 +54,8 @@ func (s service) UpdateName(id int, name string) (domain.Product, error) {
 	return product, nil
 }
 
-func (s service) Delete(id int) error {
-	err := s.repository.Delete(id)
+func (s service) Delete(ctx context.Context, id int) error {
+	err := s.repository.Delete(ctx, id)
 	if err != nil {
 		return err
 	}

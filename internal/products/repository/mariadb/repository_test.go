@@ -2,6 +2,7 @@ package repository
 
 import (
 	"arquitetura-go/internal/products/domain"
+	"context"
 	"database/sql"
 	"testing"
 
@@ -53,7 +54,7 @@ func TestGetAll(t *testing.T) {
 
 	productsRepo := NewMariaDBRepository(db)
 
-	result, err := productsRepo.GetAll()
+	result, err := productsRepo.GetAll(context.Background())
 	assert.NoError(t, err)
 
 	assert.Equal(t, result[0].Name, "Playstation 5")
@@ -75,7 +76,7 @@ func TestGetAllFailScan(t *testing.T) {
 
 	productsRepo := NewMariaDBRepository(db)
 
-	_, err = productsRepo.GetAll()
+	_, err = productsRepo.GetAll(context.Background())
 	assert.Error(t, err)
 }
 
@@ -90,6 +91,6 @@ func TestGetAllFailSelect(t *testing.T) {
 
 	productsRepo := NewMariaDBRepository(db)
 
-	_, err = productsRepo.GetAll()
+	_, err = productsRepo.GetAll(context.Background())
 	assert.Error(t, err)
 }
