@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestServiceGetAll(t *testing.T) {
@@ -90,7 +91,7 @@ func TestGetAll(t *testing.T) {
 	pList = append(pList, p)
 
 	t.Run("success", func(t *testing.T) {
-		mockRepo.On("GetAll").Return(pList, nil).Once()
+		mockRepo.On("GetAll", mock.Anything).Return(pList, nil).Once()
 
 		s := NewService(mockRepo, nil)
 		list, err := s.GetAll(context.Background())
@@ -103,7 +104,7 @@ func TestGetAll(t *testing.T) {
 	})
 
 	t.Run("error", func(t *testing.T) {
-		mockRepo.On("GetAll").
+		mockRepo.On("GetAll", mock.Anything).
 			Return(nil, errors.New("failed to retrieve products")).
 			Once()
 
