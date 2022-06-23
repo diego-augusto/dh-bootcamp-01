@@ -75,5 +75,12 @@
     "type": "Eletrodoméstico",
     "count": 1,
     "price": 2999
+  },
+  {
+    "id": 0,
+    "name": "PS4 Pro",
+    "type": "Eletrodoméstico",
+    "count": 1,
+    "price": 2999
   }
 ]

@@ -91,7 +91,7 @@ func TestGetAll(t *testing.T) {
 	pList = append(pList, p)
 
 	t.Run("success", func(t *testing.T) {
-		mockRepo.On("GetAll", mock.Anything).Return(pList, nil).Once()
+		mockRepo.On("GetAll").Return(pList, nil).Once()
 
 		s := NewService(mockRepo, nil)
 		list, err := s.GetAll(context.Background())
