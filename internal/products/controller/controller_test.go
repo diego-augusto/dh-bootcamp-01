@@ -2,11 +2,9 @@ package controller
 
 import (
 	"arquitetura-go/internal/products/domain"
-	repository "arquitetura-go/internal/products/repository/file"
-	"arquitetura-go/internal/products/service"
-	"arquitetura-go/pkg/store"
+	"arquitetura-go/internal/products/domain/mocks"
 	"bytes"
-	"encoding/json"
+	"database/sql"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -14,6 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func createServer() *gin.Engine {
@@ -21,14 +20,7 @@ func createServer() *gin.Engine {
 
 	_ = os.Setenv("TOKEN", "123456")
 
-	db := store.New(store.FileType, "../../../products.json")
-
-	repo := repository.NewRepository(db)
-	service := service.NewService(repo, nil)
-
 	ginEngine := gin.Default()
-
-	NewProduct(ginEngine, service)
 
 	return ginEngine
 }
@@ -45,40 +37,36 @@ func createRequestTest(
 	return req, httptest.NewRecorder()
 }
 
-func Test_GetProduct_OK(t *testing.T) {
-	// criar um servidor e define suas rotas
+func TestGetAll(t *testing.T) {
+	mockProducts := []domain.Product{
+		{ID: 1, Name: "Playstation 5", Type: "Eletrônicos", Count: 1, Price: 4399.99},
+		{ID: 2, Name: "XBOX Series X", Type: "Eletrônicos", Count: 1, Price: 4500.00},
+	}
+
+	mockService := new(mocks.ProductService)
+	mockService.On("GetAll", mock.Anything).Return(mockProducts, nil)
+
 	r := createServer()
-	// criar uma Request do tipo GET e Response para obter o resultado
+
+	NewProduct(r, mockService)
+
 	req, rr := createRequestTest(http.MethodGet, "/products/", "")
 
-	defer req.Body.Close()
-
-	// diz ao servidor que ele pode atender a solicitação
 	r.ServeHTTP(rr, req)
 
 	assert.Equal(t, http.StatusOK, rr.Code)
-
-	objRes := struct {
-		Code int
-		Data []domain.Product
-	}{}
-
-	err := json.Unmarshal(rr.Body.Bytes(), &objRes)
-
-	assert.Nil(t, err)
-	assert.True(t, len(objRes.Data) > 0)
 }
 
-func Test_SaveProduct_OK(t *testing.T) {
-	// crie o Servidor e defina as Rotas
+func TestGetAllFail(t *testing.T) {
+	mockService := new(mocks.ProductService)
+	mockService.On("GetAll", mock.AnythingOfType("*context.emptyCtx")).
+		Return([]domain.Product{}, sql.ErrNoRows)
+
 	r := createServer()
-	// crie Request do tipo POST e Response para obter o resultado
-	req, rr := createRequestTest(http.MethodPost, "/products/", `{
-			"name": "PS4 Pro","type": "Eletrodoméstico","count": 1,"price": 2999
-	}`)
 
-	// diga ao servidor que ele pode atender a solicitação
+	NewProduct(r, mockService)
+
+	req, rr := createRequestTest(http.MethodGet, "/products/", "")
+
 	r.ServeHTTP(rr, req)
-
-	assert.Equal(t, http.StatusOK, rr.Code)
 }
